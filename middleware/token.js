@@ -28,6 +28,8 @@ module.exports = (req, res, next) => {
     req.isAuth = true;
     req.id = decodedToken.id;
     req.token = token;
+    req.latitude = decodedToken.latitude
+    req.longitude = decodedToken.longitude
     if (req.isAuth) {
         next();
     } else {

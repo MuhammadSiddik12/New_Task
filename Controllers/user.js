@@ -6,7 +6,7 @@ exports.createUser = async (req, res, next) => {
     if (data) {
         let done = await user_model.create(data)
         const token = jwt.sign(
-            { id: done.id, latitude: done.Latitude, longitute: done.Longitude },
+            { id: done.id, latitude: done.Latitude, longitude: done.Longitude },
             process.env.JWT_KEY,
             {
                 expiresIn: "12000h",
@@ -34,13 +34,13 @@ exports.getUserDistance = async (req, res, next) => {
     let data = await user_model.findOne({ where: { id: req.id } })
     if (data) {
         let userLat = data.latitude
-        let userLong = data.longitute
+        let userLong = data.longitude
         let currentLat = req.latitude
-        let currentLong = req.longitute
+        let currentLong = req.longitude
         let func = distance(userLat, currentLat, userLong, currentLong)
-        return res.status(200).json({ "status_code": "200", "message": 'updated Successfully', "data": func })
+        return res.status(200).json({ "status_code": "200", "message": 'Data Get Successfully', "data": func })
     } else {
-        return res.status(400).json({ "status_code": "404", "message": 'No Data Found' })
+        return res.status(200).json({ "status_code": "200", "message": 'No Data Found' })
     }
 }
 
@@ -59,7 +59,7 @@ exports.userList = async (req, res, next) => {
         }
         return res.status(200).json({ "status_code": "200", "message": 'Data Fetch Successfully', data: arr })
     } else {
-        return res.status(400).json({ "status_code": "200", "message": 'No Data Found' })
+        return res.status(200).json({ "status_code": "200", "message": 'No Data Found' })
     }
 }
 
