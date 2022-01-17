@@ -1,10 +1,19 @@
 const user_model = require('../Models/user');
+const jwt = require('jsonwebtoken')
 
 exports.createUser = async (req, res, next) => {
     let data = req.body;
     if (data) {
-        await user_model.create(data)
-        return res.status(200).json({ "status_code": "200", "message": 'User Added Successfully', "data": data })
+        let done = await user_model.create(data)
+        const token = jwt.sign(
+            { id: done.id, latitude: done.Latitude, longitute: done.Longitude },
+            process.env.JWT_KEY,
+            {
+                expiresIn: "12000h",
+            }
+        );
+        let data1 = { ...done.dataValues, token: token }
+        return res.status(200).json({ "status_code": "200", "message": 'User Added Successfully', "data": data1 })
     } else {
         return res.status(200).json({ "status_code": "200", "message": 'Please Provide A User Details' })
     }
@@ -26,8 +35,8 @@ exports.getUserDistance = async (req, res, next) => {
     if (data) {
         let userLat = data.latitude
         let userLong = data.longitute
-        let currentLat = req.body.latitude
-        let currentLong = req.body.longitute
+        let currentLat = req.latitude
+        let currentLong = req.longitute
         let func = distance(userLat, currentLat, userLong, currentLong)
         return res.status(200).json({ "status_code": "200", "message": 'updated Successfully', "data": func })
     } else {
@@ -38,9 +47,17 @@ exports.getUserDistance = async (req, res, next) => {
 
 exports.userList = async (req, res, next) => {
     let data = await user_model.findAll()
+    let request = req.body.days
+    let arr = []
     if (data) {
-        await user_model
-        return res.status(200).json({ "status_code": "200", "message": 'Data Fetch Successfully' })
+        for (let i of request) {
+            data.forEach((ele) => {
+                if (ele.createdAt.getDay() == i) {
+                    arr.push(ele)
+                }
+            })
+        }
+        return res.status(200).json({ "status_code": "200", "message": 'Data Fetch Successfully', data: arr })
     } else {
         return res.status(400).json({ "status_code": "200", "message": 'No Data Found' })
     }
